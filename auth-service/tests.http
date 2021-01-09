@@ -10,3 +10,4 @@ Content-Type: application/json
 
 ### Hello World
 GET http://localhost:9100
+Authorization: Bearer [Fetch from above request]
