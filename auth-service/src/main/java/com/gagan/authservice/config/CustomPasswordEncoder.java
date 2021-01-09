@@ -1,3 +1,10 @@
+/**
+ * @author Gagandeep Singh
+ * @email singh.gagandeep3911@gmail.com
+ * @create date 2021-01-09 07:38:59
+ * @modify date 2021-01-09 07:38:59
+ * @desc [description]
+ */
 package com.gagan.authservice.config;
 
 import org.springframework.context.annotation.Bean;
