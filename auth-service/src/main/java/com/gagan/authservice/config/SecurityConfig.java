@@ -7,7 +7,7 @@
  */
 package com.gagan.authservice.config;
 
-import com.gagan.authservice.security.JwtAuthenticationFilter;
+import com.gagan.authservice.security.CustomAuthenticationEntryPoint;
 import com.gagan.authservice.security.JwtAuthorizationFilter;
 import com.gagan.authservice.security.JwtProvider;
 import com.gagan.authservice.services.AuthService;
@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 import lombok.AllArgsConstructor;
 
@@ -38,12 +39,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
     http
       .cors().and() // Required for accessing prpotected routes
       .csrf().disable()
-      .authorizeRequests().antMatchers("/h2/**", "/swagger*/**", "/v2/api-docs").permitAll()
+      .authorizeRequests().antMatchers("/auth/**" , "/h2/**", "/swagger*/**", "/v2/api-docs").permitAll()
       .antMatchers().permitAll()
       .anyRequest().authenticated()
       .and()
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    http.addFilter(new JwtAuthenticationFilter(authenticationManager(), authService));
+      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
+    // http.addFilter(new JwtAuthenticationFilter(authenticationManager(), authService));
     http.addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtProvider, userDetailsService));
     http.headers().frameOptions().disable();
   }
@@ -51,5 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+  }
+
+  public AuthenticationEntryPoint authenticationEntryPoint() {
+    return new CustomAuthenticationEntryPoint();
   }
 }
