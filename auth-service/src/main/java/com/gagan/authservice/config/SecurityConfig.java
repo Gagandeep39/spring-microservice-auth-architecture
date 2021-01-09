@@ -7,6 +7,8 @@
  */
 package com.gagan.authservice.config;
 
+import com.gagan.authservice.repositories.UserRepository;
+import com.gagan.authservice.security.JwtAuthenticationFilter;
 import com.gagan.authservice.security.JwtAuthorizationFilter;
 import com.gagan.authservice.security.JwtProvider;
 import com.gagan.authservice.services.implementation.JwtUserDetailsServiceImpl;
@@ -29,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   private JwtUserDetailsServiceImpl userDetailsService;
   private BCryptPasswordEncoder passwordEncoder;
   private JwtProvider jwtProvider;
+  private UserRepository userRepository;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -40,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
       .anyRequest().authenticated()
       .and()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    // http.addFilter(new JwtAuthenticationFilter(authenticationManager()));
+    http.addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtProvider, userRepository));
     http.addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtProvider, userDetailsService));
     http.headers().frameOptions().disable();
   }

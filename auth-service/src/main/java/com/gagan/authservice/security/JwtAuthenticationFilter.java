@@ -8,6 +8,7 @@
 package com.gagan.authservice.security;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.servlet.FilterChain;
@@ -16,7 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gagan.authservice.dto.LoginResponse;
 import com.gagan.authservice.entity.User;
+import com.gagan.authservice.repositories.UserRepository;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,9 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
   private AuthenticationManager authenticationManager;
+  private JwtProvider jwtProvider;
+  private UserRepository userRepository;
 
-  public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+  public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider, UserRepository userRepository) {
     this.authenticationManager = authenticationManager;
+    this.jwtProvider = jwtProvider;
+    this.userRepository = userRepository;
     setFilterProcessesUrl("/auth/login");
   }
 
@@ -44,7 +51,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
       return authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(creds.getUsername(), creds.getPassword(), new ArrayList<>()));
     } catch (Exception e) {
-      log.info(e.getMessage());
+      log.debug(e.getMessage());
     }
     return super.attemptAuthentication(request, response);
   }
@@ -52,8 +59,26 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
       Authentication authResult) throws IOException, ServletException {
+    response.setContentType("application/json");
+    ObjectMapper mapper = new ObjectMapper();
+    OutputStream out = response.getOutputStream();
+    mapper.writeValue(out, buildResponse(authResult));
+  }
 
-    super.successfulAuthentication(request, response, chain, authResult);
+  private LoginResponse buildResponse(Authentication auth) {
+    try {
+      User user = userRepository.findByUsername(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
+          .orElseThrow(() -> new RuntimeException());
+      return LoginResponse.builder()
+        .userId(user.getUserId())
+        .username(user.getUsername())
+        .role(user.getRole())
+        .token(jwtProvider.generateTokenWithUsername(user.getUsername()))
+        .build();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+    }
+    return null;
   }
 
 }
