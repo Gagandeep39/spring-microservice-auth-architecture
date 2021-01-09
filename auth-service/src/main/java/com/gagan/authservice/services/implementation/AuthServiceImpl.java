@@ -5,6 +5,7 @@ import com.gagan.authservice.dto.LoginResponse;
 import com.gagan.authservice.entity.User;
 import com.gagan.authservice.exceptions.InvalidCredentialException;
 import com.gagan.authservice.repositories.UserRepository;
+import com.gagan.authservice.security.JwtProvider;
 import com.gagan.authservice.services.AuthService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ public class AuthServiceImpl implements AuthService {
   
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  // private final JwtProvider jwtProvider;
+  private final JwtProvider jwtProvider;
 
 
   @Override
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
       .userId(user.getUserId())
       .username(user.getUsername())
       .role(user.getRole())
-      .token(null)
+      .token(jwtProvider.generateTokenWithUsername(user.getUsername()))
       .build();
   } 
 
