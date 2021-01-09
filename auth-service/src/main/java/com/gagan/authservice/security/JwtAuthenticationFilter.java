@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gagan.authservice.dto.LoginRequest;
 import com.gagan.authservice.dto.LoginResponse;
-import com.gagan.authservice.entity.User;
-import com.gagan.authservice.repositories.UserRepository;
+import com.gagan.authservice.services.AuthService;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,13 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
   private AuthenticationManager authenticationManager;
-  private JwtProvider jwtProvider;
-  private UserRepository userRepository;
+  private AuthService  authService;
+  private LoginRequest loginRequest;
 
-  public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider, UserRepository userRepository) {
+  public JwtAuthenticationFilter(AuthenticationManager authenticationManager, 
+    AuthService authService
+  ) {
     this.authenticationManager = authenticationManager;
-    this.jwtProvider = jwtProvider;
-    this.userRepository = userRepository;
+    this.authService = authService;
     setFilterProcessesUrl("/auth/login");
   }
 
@@ -47,9 +48,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
       throws AuthenticationException {
     try {
-      User creds = new ObjectMapper().readValue(request.getInputStream(), User.class);
+      loginRequest = new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
       return authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(creds.getUsername(), creds.getPassword(), new ArrayList<>()));
+          new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword(), new ArrayList<>()));
     } catch (Exception e) {
       log.debug(e.getMessage());
     }
@@ -65,20 +66,29 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     mapper.writeValue(out, buildResponse(authResult));
   }
 
+  // private LoginResponse buildResponse(Authentication auth) {
+  //   try {
+  //     log.debug(loginRequest.getPassword());
+  //     User user = userRepository.findByUsername(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
+  //         .orElseThrow(() -> new RuntimeException());
+  //     return LoginResponse.builder()
+  //       .userId(user.getUserId())
+  //       .username(user.getUsername())
+  //       .role(user.getRole())
+  //       .token(jwtProvider.generateTokenWithUsername(user.getUsername()))
+  //       .build();
+  //   } catch (Exception e) {
+  //     log.info(e.getMessage());
+  //   }
+  //   return null;
+  // }
+
+  /**
+   * Wont work
+   * Password here is null
+   */
   private LoginResponse buildResponse(Authentication auth) {
-    try {
-      User user = userRepository.findByUsername(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
-          .orElseThrow(() -> new RuntimeException());
-      return LoginResponse.builder()
-        .userId(user.getUserId())
-        .username(user.getUsername())
-        .role(user.getRole())
-        .token(jwtProvider.generateTokenWithUsername(user.getUsername()))
-        .build();
-    } catch (Exception e) {
-      log.info(e.getMessage());
-    }
-    return null;
+    return authService.login(loginRequest);
   }
 
 }
