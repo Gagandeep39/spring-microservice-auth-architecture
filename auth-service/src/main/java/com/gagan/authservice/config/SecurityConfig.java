@@ -7,7 +7,6 @@
  */
 package com.gagan.authservice.config;
 
-import com.gagan.authservice.repositories.UserRepository;
 import com.gagan.authservice.security.JwtAuthenticationFilter;
 import com.gagan.authservice.security.JwtAuthorizationFilter;
 import com.gagan.authservice.security.JwtProvider;
