@@ -9,5 +9,9 @@ Content-Type: application/json
 }
 
 ### Hello World
-GET http://localhost:9000
+GET http://localhost:9000/auth-service/home
+Authorization: Bearer [Fetch from above request]
+
+### Hello World
+GET http://localhost:9000/user-service/home
 Authorization: Bearer [Fetch from above request]
