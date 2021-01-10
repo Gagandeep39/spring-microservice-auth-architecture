@@ -38,7 +38,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      // .cors().and() // Required for accessing prpotected routes
+      // Required when not using gateway
+      // .cors().and()
+      // Wont work, adds extra Allowed-header * 
+      // .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
       .csrf().disable()
       .authorizeRequests().antMatchers("/auth/**" , "/h2/**", "/swagger*/**", "/v2/api-docs").permitAll()
       .antMatchers().permitAll()
