@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
     http
       .cors().and() // Required for accessing prpotected routes
       .csrf().disable()
-      .authorizeRequests().antMatchers("/auth-service/**" , "/h2/**", "/swagger*/**", "/v2/api-docs").permitAll()
+      .authorizeRequests().antMatchers("/auth-service/**", "/actuator/**", "/**/h2/**", "/**/swagger*/**", "/**/v2/api-docs").permitAll()
       .antMatchers().permitAll()
       .anyRequest().authenticated()
       .and()
