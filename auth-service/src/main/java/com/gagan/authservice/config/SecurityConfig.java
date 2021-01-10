@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   protected void configure(HttpSecurity http) throws Exception {
     http
       // Required when not using gateway
-      .cors().and()
+      // .cors().and()
       // Wont work, adds extra Allowed-header * 
       // .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
       .csrf().disable()
