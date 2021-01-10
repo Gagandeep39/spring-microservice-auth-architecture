@@ -1,1 +1,12 @@
+server:
+  port: ${server_port:9700}
+spring:
+  profiles:
+    active: dev
+  application:
+    name: user-service
 
+# JTW Config
+jwt:
+  secret: ${jwt_secret:thisisathirtycharacterlongstring}
+  expiration: 3600000
