@@ -40,8 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
     http
       // Required when not using gateway
       // .cors().and()
-      // Wont work, adds extra Allowed-header * 
-      // .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
       .csrf().disable()
       .authorizeRequests().antMatchers("/auth/**" , "/h2/**", "/swagger*/**", "/v2/api-docs").permitAll()
       .antMatchers().permitAll()
@@ -49,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
       .and()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
-      // Works but need to make 2 calls
+    // Works but need to make 2 calls
     // http.addFilter(new JwtAuthenticationFilter(authenticationManager(), authService));
     http.addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtProvider, userDetailsService));
     http.headers().frameOptions().disable();
