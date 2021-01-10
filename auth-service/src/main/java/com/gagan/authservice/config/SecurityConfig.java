@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   protected void configure(HttpSecurity http) throws Exception {
     http
       // Required when not using gateway
-      // .cors().and()
+      .cors().and()
       // Wont work, adds extra Allowed-header * 
       // .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
       .csrf().disable()
@@ -49,7 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
       .and()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
       .and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
-    http.addFilter(new JwtAuthenticationFilter(authenticationManager(), authService));
+      // Works but need to make 2 calls
+    // http.addFilter(new JwtAuthenticationFilter(authenticationManager(), authService));
     http.addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtProvider, userDetailsService));
     http.headers().frameOptions().disable();
   }

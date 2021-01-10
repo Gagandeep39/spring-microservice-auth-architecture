@@ -29,9 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      // .cors().and()
+      .cors().and()
       // Makes header as default with origin as *
-      .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
+      // .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
     
       .csrf().disable()
       .authorizeRequests().antMatchers("/auth-service/**", "/actuator/**", "/**/h2/**", "/**/swagger*/**", "/**/v2/api-docs").permitAll()
