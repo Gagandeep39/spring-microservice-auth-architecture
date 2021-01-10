@@ -2,7 +2,7 @@ server:
   port: 9000
 spring:
   application:
-    name: inventory-gateway-service
+    name: gateway-service
   profiles:
     active: dev
 
