@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.web.cors.CorsConfiguration;
 
 import lombok.AllArgsConstructor;
 
@@ -28,10 +29,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      .cors().and() // Required for accessing prpotected routes
+      // .cors().and()
+      // Makes header as default with origin as *
+      .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()).and() // Required for accessing prpotected routes
+    
       .csrf().disable()
       .authorizeRequests().antMatchers("/auth-service/**", "/actuator/**", "/**/h2/**", "/**/swagger*/**", "/**/v2/api-docs").permitAll()
-      .antMatchers().permitAll()
       .anyRequest().authenticated()
       .and()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
