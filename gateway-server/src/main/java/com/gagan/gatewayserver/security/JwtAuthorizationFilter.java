@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.netflix.zuul.context.RequestContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,6 +48,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       String jwt = getJwtFromRequest((HttpServletRequest) request);
       if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
         String username = jwtProvider.getUsernameFromJwt(jwt);
+        RequestContext.getCurrentContext().addZuulRequestHeader("userId", jwtProvider.getIdFromJwt(jwt).toString());
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
