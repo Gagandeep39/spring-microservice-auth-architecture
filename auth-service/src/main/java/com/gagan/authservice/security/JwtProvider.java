@@ -70,4 +70,18 @@ public class JwtProvider {
     return Keys.hmacShaKeyFor(secret.getBytes());
   }
 
+  public String generateWithUsernameAndId(String username, Long id) {
+    return Jwts.builder()
+      .setSubject(username)
+      .claim("userId", id)
+      .setIssuedAt(Date.from(Instant.now()))
+      .signWith(secretKey, signatureAlgorithm)
+      .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis))).compact();
+  }
+
+  public Integer getIdFromJwt(String token) {
+    Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+    return claims.get("userId", Integer.class);
+  }
+
 }
